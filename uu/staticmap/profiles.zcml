@@ -1,0 +1,15 @@
+<configure
+  xmlns="http://namespaces.zope.org/zope"
+  xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+  i18n_domain="uu.staticmap">
+     
+    <!-- register extension profiles for add-on --> 
+    <genericsetup:registerProfile
+        name="default"
+        title="Static map views add-on"
+        directory="profiles/default"
+        description="Plone add-on enabling static map views using Google Static Maps API and in-memory caching of map data."
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        />
+
+</configure>

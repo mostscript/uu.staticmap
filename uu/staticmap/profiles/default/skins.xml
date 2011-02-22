@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<object name="portal_skins">
+ <object name="uu_staticmap"
+     meta_type="Filesystem Directory View"
+     directory="uu.staticmap:skins/uu_staticmap"/>
+ <skin-path name="Sunburst Theme">
+  <layer name="uu_staticmap" insert-after="custom" />
+ </skin-path>
+</object>
