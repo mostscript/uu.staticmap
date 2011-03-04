@@ -88,9 +88,7 @@ class StaticMapView(object):
         'size' (a tuple of integers), and 'zoom' (an integer zoom level).
         """
         global timestamps, writelock
-        print query
         url = '%s?%s' % (BASE_URL, make_map_qs(**query))
-        print url
         request = urllib2.Request(url)
         handler = urllib2.build_opener()
         image_data = handler.open(url).read()
