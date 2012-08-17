@@ -6,6 +6,7 @@ from threading import Lock
 from urllib import quote_plus, urlencode
 
 from plone.memoize import ram
+from plone.event.interfaces import IEventAccessor
 from AccessControl.SecurityManagement import getSecurityManager
 from zExceptions import Unauthorized
 
@@ -142,10 +143,14 @@ class EventMapView(object):
         self.context = context
         self.request = request
         self.has_loc = False
+        self.load_loc()
+    
+    def load_loc(self):
+        context = self.context
         if hasattr(context, 'getLocation') and context.getLocation():
             request['loc'] = context.getLocation().strip()
             self.has_loc = True
-    
+
     def map_link(self):
         base = "http://maps.google.com/maps?q="
         return "%s%s" % (base, quote_plus(self.request.get('loc','').strip()))
@@ -157,4 +162,14 @@ class EventMapView(object):
          #otherwise, default to 1 px transparent PNG:
          resp.setHeader('Content-type', 'image/png')
          return ONE_PX_PNG
+
+
+class PAEEventMapView(EventMapView):
+
+    def load_loc(self):
+        context = self.context
+        loc = IEventAccessor(context).location
+        if loc:
+            self.request['loc'] = loc.strip()
+            self.has_loc = True
 

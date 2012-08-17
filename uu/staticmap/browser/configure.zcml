@@ -17,4 +17,11 @@
     permission="zope2.Public"
     />
 
+  <browser:page
+    name="event-map-image"
+    for="plone.event.interfaces.IEvent"
+    class=".staticmap.PAEEventMapView"
+    permission="zope2.Public"
+    />
+
 </configure>

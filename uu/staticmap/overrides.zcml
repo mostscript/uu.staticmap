@@ -1,0 +1,14 @@
+<configure
+  xmlns="http://namespaces.zope.org/zope"
+  xmlns:browser="http://namespaces.zope.org/browser"
+  xmlns:five="http://namespaces.zope.org/five">
+
+  <browser:page
+    for="plone.event.interfaces.IEvent"
+    name="event_view"
+    class="plone.app.event.browser.event_view.EventView"
+    template="browser/event_view.pt"
+    permission="zope2.View"
+    />
+
+</configure>

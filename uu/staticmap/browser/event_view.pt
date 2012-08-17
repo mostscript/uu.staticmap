@@ -1,0 +1,214 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="plone.app.event">
+<body>
+
+<metal:content-core fill-slot="content-core">
+    <metal:content-core define-macro="content-core"
+                        tal:define="data nocall:view/data">
+
+        <div class="eventDetails">
+            <table class="vertical listing"
+              summary="Event details"
+              i18n:attributes="summary summary_event_details;">
+
+                <tbody>
+
+                    <tr tal:condition="data/subjects">
+                        <th i18n:translate="event_what">What</th>
+                        <td>
+                          <ul>
+                            <li tal:repeat="item data/subjects"
+                                tal:content="item" />
+                          </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th i18n:translate="event_when">When</th>
+                        <td tal:define="date_dict view/date_for_display;
+                                        start_tzname python:data.start.tzinfo.tzname(data.start);
+                                        start_utcdelta python:data.start.tzinfo.utcoffset(data.start);
+                                        start_utcoffset python:(start_utcdelta.days*86400+start_utcdelta.seconds)*100/60/60;">
+                          <metal:macro define-macro="event_occurrence">
+                           <div class="vevent">
+                            <a class="url hCalendar-hidden"
+                               href=""
+                               tal:attributes="href context/absolute_url"
+                               tal:content="context/absolute_url"
+                               >
+                            </a>
+                            <span class="hCalendar-hidden summary"
+                                  tal:content="context/Title">event title</span>
+                            <tal:differentday tal:condition="not:date_dict/same_day"
+                                              i18n:translate="event_when_differentday">
+                                <abbr i18n:name="startdate"
+                                      class="dtstart"
+                                      tal:attributes="title date_dict/start_iso">
+                                      <span metal:define-slot="inside"
+                                            class="explain">
+                                        <span tal:replace="date_dict/start_date">Start Date</span>
+                                        <tal:notwholeday condition="not:data/whole_day">
+                                          <tal:word i18n:translate="event_when_differentday_optional_word_between_date_and_time" />
+                                          <span tal:replace="date_dict/start_time">Start Time</span>
+                                        </tal:notwholeday>
+                                      </span>
+                                </abbr>
+                                <span class="timespan">to</span>
+                                <abbr i18n:name="enddate"
+                                      class="dtend"
+                                      tal:attributes="title date_dict/end_iso">
+                                      <span metal:define-slot="inside"
+                                            class="explain">
+                                        <span tal:replace="date_dict/end_date">End Date</span>
+                                        <tal:notwholeday condition="not:data/whole_day">
+                                          <tal:word i18n:translate="event_when_differentday_optional_word_between_date_and_time" />
+                                          <span tal:replace="date_dict/end_time">End Time</span>
+                                        </tal:notwholeday>
+                                      </span>
+                                </abbr>
+                                <span class="timezone" tal:condition="start_tzname">
+                                    (<tal:tzname replace="start_tzname">timezone name</tal:tzname> / UTC<tal:tzoffset replace="start_utcoffset" />)
+                                </span>
+                            </tal:differentday>
+
+                            <tal:sameday tal:condition="date_dict/same_day">
+                              <tal:wholeday condition="data/whole_day">
+                                <span tal:replace="date_dict/start_date"
+                                      i18n:translate="" />
+                              </tal:wholeday>
+                              <tal:notwholeday condition="not:data/whole_day"
+                                  i18n:translate="event_when_sameday">
+                                <div class="datedisplay" tal:content="date_dict/start_date"
+                                      i18n:name="date">
+                                    Start Date Time</div>
+                                <div class="timerange">
+                                    from
+                                    <abbr class="dtstart"
+                                        tal:attributes="title date_dict/start_iso"
+                                         i18n:name="starttime">
+                                         <span metal:define-slot="inside"
+                                             class="explain"
+                                             tal:content="date_dict/start_time">Start Time</span>
+                                    </abbr>
+                                    <span class="timespan">to</span>
+                                    <abbr class="dtend"
+                                        tal:attributes="title date_dict/end_iso"
+                                        i18n:name="endtime">
+                                        <span metal:define-slot="inside"
+                                            class="explain"
+                                            tal:content="date_dict/end_time">End Time</span>
+                                    </abbr>
+                                </div>
+                                <span class="timezone" tal:condition="start_tzname">
+                                    (<tal:tzname replace="start_tzname">timezone name</tal:tzname> / UTC<tal:tzoffset replace="start_utcoffset" />)
+                                </span>
+                              </tal:notwholeday>
+                            </tal:sameday>
+                           </div>
+                          </metal:macro>
+                          <div tal:define="events view/occurrences;
+                                           events python:events and events[1:] or None"
+                               tal:condition="events">
+                               <tal:occurrences i18n:translate="">More occurrences of this event:</tal:occurrences>
+                            <ul>
+                              <li tal:repeat="date_dict events">
+                                <tal:event metal:use-macro="view/macros/event_occurrence" />
+                              </li>
+                            </ul>
+                          </div>
+                        </td>
+                    </tr>
+                    <tr tal:condition="data/location">
+                        <th i18n:translate="event_where">Where</th>
+                        <td class="location">
+                          <a href="#place_map">
+                            <span class="location" tal:content="data/location">
+                            location
+                            </span>
+                          </a>
+                        </td>
+                    </tr>
+                    <tr tal:define="contact_email data/contact_email;
+                                    contact_name data/contact_name;"
+                        tal:condition="python:contact_name or contact_email">
+                        <th i18n:translate="contact_name">Contact Name</th>
+                        <td>
+                            <a tal:condition="contact_email"
+                               tal:replace="structure python: context.spamProtect(mailaddress=contact_email, mailname=contact_name, cssclass='email fn')"
+                               />
+                            <span class="fn"
+                                  tal:condition="not: contact_email"
+                                  tal:content="contact_name" />
+                        </td>
+                    </tr>
+                    <tr tal:condition="data/contact_phone">
+                        <th i18n:translate="contact_phone">Contact Phone</th>
+                        <td class="tel" tal:content="data/contact_phone">
+                            Contact Phone
+                        </td>
+                    </tr>
+                    <tr tal:condition="data/attendees|nothing">
+                        <th i18n:translate="contact_attendees">Attendees</th>
+                        <td class="attendees">
+                          <ul>
+                            <li tal:repeat="item data/attendees"
+                                tal:content="item" />
+                          </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th i18n:translate="heading_add_to_calendar">Add event to calendar</th>
+                        <td tal:define="here_url context/@@plone_context_state/object_url;
+                                        portal context/@@plone_portal_state/portal;">
+                            <a href="#"
+                               tal:attributes="href string:$here_url/ics_view"
+                               title="Download this event in iCal format"
+                               i18n:attributes="title title_add_to_ical;">
+                                <img tal:replace="structure portal/icon_export_ical.png" src="" alt="" />
+                                <span i18n:translate="label_add_to_ical">iCal</span></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <tal:txt replace="structure data/text" />
+
+        <div class="staticmap"
+             tal:condition="data/location"
+             tal:define="here_url context/@@plone_context_state/object_url;
+                         map_url string:${here_url}/@@event-map-image;
+                         map_link context/@@event-map-image/map_link;">
+            <a name="place_map" id="place_map" />
+            <a href="./@@event-map-image"
+               target="_blank"
+               title="Click map to view interactively in new window."
+               tal:attributes="href map_link">
+                <img src="./@@event-map-image"
+                     alt="Click map to view interactively in new window." 
+                     style="1px solid #004"
+                     tal:attributes="src map_url"/>
+            </a>
+            <p><em>Click on above map to view interactively in new window.</em></p>
+        </div>
+
+        <p tal:condition="data/event_url|nothing">
+            <a class="url"
+               href="event_url"
+               i18n:translate="event_more_information"
+               class="eventUrl"
+               tal:attributes="href data/event_url">
+               More information about this event&hellip;</a>
+        </p>
+
+        <span class="visualClear" />
+
+    </metal:content-core>
+</metal:content-core>
+
+</body>
+</html>
