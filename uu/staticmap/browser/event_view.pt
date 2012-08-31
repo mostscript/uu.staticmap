@@ -5,6 +5,12 @@
       lang="en"
       metal:use-macro="context/main_template/macros/master"
       i18n:domain="plone.app.event">
+<metal:block fill-slot="javascript_head_slot">
+ <script type="text/javascript"
+         src="++resource++plone.app.event/event_view.js"
+         tal:attributes="src string:${context/@@plone_portal_state/navigation_root_url}/++resource++plone.app.event/event_view.js"
+         ></script>
+</metal:block>
 <body>
 
 <metal:content-core fill-slot="content-core">
